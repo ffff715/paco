@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cuestionario</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <h1>Formulario de pedido</h1>
+    <form id="orderForm">
+      <label>Nombre
+        <input type="text" id="name" name="name" required placeholder="Tu nombre">
+      </label>
+
+      <label>Qué quiere
+        <div class="suggestion-wrap">
+          <input list="optionsList" id="optionInput" name="option" required placeholder="Escribe para buscar..." autocomplete="off">
+          <div id="optionSuggestions" class="suggestions" aria-hidden="true"></div>
+        </div>
+        <datalist id="optionsList"></datalist>
+      </label>
+
+      <label>Cantidad
+        <div class="option-row">
+          <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+          <input list="unitsList" id="unitInput" name="unit" placeholder="unidad" class="unit-inline">
+          <datalist id="unitsList"></datalist>
+        </div>
+      </label>
+
+      <div class="actions">
+        <button type="submit">Enviar pedido</button>
+        <button type="reset" class="secondary">Limpiar</button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    // Si ejecutas el servidor, establece aquí la base, por ejemplo:
+    // window.SERVER_BASE = 'http://localhost:3000';
+    window.SERVER_BASE = window.SERVER_BASE || '';
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>

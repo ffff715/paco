@@ -1,0 +1,11 @@
+[
+  { "name": "Camiseta", "unit": "unidad" },
+  { "name": "Taza", "unit": "unidad" },
+  { "name": "Poster", "unit": "unidad" },
+  { "name": "Cupón descuento", "unit": "porcentaje" },
+  { "name": "Suscripción mensual", "unit": "mes" },
+  { "name": "Consulta personalizada", "unit": "hora" },
+  { "name": "Caja de bombones", "unit": "docena" },
+  { "name": "Harina", "unit": "kg" },
+  { "name": "Leche", "unit": "l" }
+]
