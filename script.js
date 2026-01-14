@@ -97,21 +97,28 @@
   const table = document.querySelector('#submissionsTable tbody');
   const exportBtn = document.getElementById('exportBtn');
   const clearBtn = document.getElementById('clearBtn');
+  const refreshFilesBtn = document.getElementById('refreshFilesBtn');
+  const serverFilesSpan = document.getElementById('serverFiles');
+  const downloadMasterBtn = document.getElementById('downloadMasterBtn');
+  const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+  const downloadCsvBtn = document.getElementById('downloadCsvBtn');
   const searchInput = document.getElementById('searchInput');
   const emptyDiv = document.getElementById('empty');
 
   function renderTable(){
     if(!table) return;
-    const allLocal = getSubmissions();
     const SERVER_BASE = window.SERVER_BASE || '';
     if(SERVER_BASE){
       fetch((SERVER_BASE||'') + '/submissions').then(r=>r.json()).then(serverList=>{
-        const merged = Array.isArray(serverList)? [...allLocal, ...serverList] : allLocal;
-        renderRowsAndHistory(merged);
+        const list = Array.isArray(serverList)? serverList : [];
+        renderRowsAndHistory(list);
       }).catch(()=>{
+        // si falla el servidor, mostrar local
+        const allLocal = getSubmissions();
         renderRowsAndHistory(allLocal);
       });
     }else{
+      const allLocal = getSubmissions();
       renderRowsAndHistory(allLocal);
     }
   }
@@ -263,5 +270,34 @@
 
   // initial render for admin
   renderTable();
+
+  // funciones para listar/descargar archivos del servidor
+  const SERVER_BASE = window.SERVER_BASE || '';
+  async function fetchServerFiles(){
+    if(!SERVER_BASE) return;
+    try{
+      const r = await fetch(SERVER_BASE + '/files');
+      if(!r.ok) throw new Error('no');
+      const files = await r.json();
+      if(!serverFilesSpan) return;
+      if(!files || !files.length){ serverFilesSpan.textContent = 'No hay archivos'; return; }
+      serverFilesSpan.innerHTML = files.map(f=> `<a class="server-file" href="#" data-name="${encodeURIComponent(f.name)}">${f.name}</a>`).join(' · ');
+      // attach clicks
+      Array.from(document.querySelectorAll('.server-file')).forEach(el=>{
+        el.addEventListener('click', (ev)=>{
+          ev.preventDefault(); const name = decodeURIComponent(el.dataset.name||''); const url = SERVER_BASE + '/files/' + encodeURIComponent(name);
+          const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+        });
+      });
+    }catch(e){ console.warn('fetchServerFiles', e.message); if(serverFilesSpan) serverFilesSpan.textContent = 'Error al leer archivos'; }
+  }
+
+  if(refreshFilesBtn){ refreshFilesBtn.addEventListener('click', ()=> fetchServerFiles()); }
+  if(downloadMasterBtn){ downloadMasterBtn.addEventListener('click', ()=>{ if(!SERVER_BASE) return showMsg('Configura SERVER_BASE para usar servidor', false); const a=document.createElement('a'); a.href = SERVER_BASE + '/download/enf'; a.download='submissions.enf'; document.body.appendChild(a); a.click(); a.remove(); }); }
+  if(downloadJsonBtn){ downloadJsonBtn.addEventListener('click', ()=>{ if(!SERVER_BASE) return showMsg('Configura SERVER_BASE para usar servidor', false); const a=document.createElement('a'); a.href = SERVER_BASE + '/download/json'; a.download='submissions.json'; document.body.appendChild(a); a.click(); a.remove(); }); }
+  if(downloadCsvBtn){ downloadCsvBtn.addEventListener('click', ()=>{ if(!SERVER_BASE) return showMsg('Configura SERVER_BASE para usar servidor', false); const a=document.createElement('a'); a.href = SERVER_BASE + '/export/csv'; a.download='pedidos.csv'; document.body.appendChild(a); a.click(); a.remove(); }); }
+
+  // auto-fetch files on load if server configured
+  if(SERVER_BASE) fetchServerFiles();
 
 })();
