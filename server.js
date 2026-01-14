@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -9,6 +10,8 @@ const { v4: uuidv4 } = require('uuid');
 const scrypt = promisify(crypto.scrypt);
 const app = express();
 app.use(bodyParser.json({limit:'1mb'}));
+// permitir CORS para solicitudes desde el cliente (GitHub Pages u otros)
+app.use(cors());
 
 const STORAGE_DIR = path.join(__dirname, 'data_enf');
 if(!fs.existsSync(STORAGE_DIR)) fs.mkdirSync(STORAGE_DIR);
@@ -90,4 +93,5 @@ app.get('/export/csv', async (req,res)=>{
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, ()=> console.log('Server listening on', PORT));
+const HOST = process.env.HOST || '0.0.0.0';
+app.listen(PORT, HOST, ()=> console.log(`Server listening on http://${HOST}:${PORT}`));
